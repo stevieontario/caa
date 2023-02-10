@@ -33,6 +33,7 @@ def load_lottieurl(url):
 
 house_energy = load_lottieurl('https://assets4.lottiefiles.com/packages/lf20_ulfrygzw.json')
 meeting_json = load_lottieurl('https://assets1.lottiefiles.com/packages/lf20_7mpsnbrj.json')
+print('path: ', path)
 image_contact_form = Image.open(path+'/images/contact.png')
 #waste_waffle = Image.open('/var/www/html/Documents/tw/waste_waffle.png-1.png')
 

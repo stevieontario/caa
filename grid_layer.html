@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <title>pydeck</title>
+        <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v1.13.0/mapbox-gl.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" />
+    <script src='https://cdn.jsdelivr.net/npm/@deck.gl/jupyter-widget@~8.8.12/dist/index.js'></script>
+    <style>
+    body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+#deck-container {
+  width: 100vw;
+  height: 100vh;
+}
+
+#deck-container canvas {
+  z-index: 1;
+  background: none;
+}
+    </style>
+  </head>
+  <body>
+    <div id="deck-container">
+    </div>
+  </body>
+  <script>
+    const container = document.getElementById('deck-container');
+    const jsonInput = {
+  "initialViewState": {
+    "bearing": 0,
+    "latitude": 46.3862,
+    "longitude": -82.6509,
+    "pitch": 45,
+    "zoom": 4.255
+  },
+  "layers": [
+    {
+      "@@type": "ColumnLayer",
+      "autoHighlight": true,
+      "data": [
+        {
+          "COORDINATES": [
+            -74.6055611,
+            45.610281
+          ],
+          "community_name": "Hawkesbury",
+          "formatted_w": "0.43",
+          "total_w": 0.42564059999999965
+        },
+        {
+          "COORDINATES": [
+            -74.728703,
+            45.0184417
+          ],
+          "community_name": "Cornwall",
+          "formatted_w": "3",
+          "total_w": 3.455522400000005
+        },
+        {
+          "COORDINATES": [
+            -80.2172379,
+            44.5027226
+          ],
+          "community_name": "Collingwood",
+          "formatted_w": "6",
+          "total_w": 5.606309700000001
+        },
+        {
+          "COORDINATES": [
+            -75.6843332,
+            44.5895925
+          ],
+          "community_name": "Brockville",
+          "formatted_w": "6",
+          "total_w": 6.2408115
+        },
+        {
+          "COORDINATES": [
+            -78.1677784,
+            43.9595998
+          ],
+          "community_name": "Cobourg",
+          "formatted_w": "5",
+          "total_w": 4.50833175
+        },
+        {
+          "COORDINATES": [
+            -79.885712,
+            44.750147
+          ],
+          "community_name": "Midland",
+          "formatted_w": "10",
+          "total_w": 9.892894500000002
+        },
+        {
+          "COORDINATES": [
+            -88.4811791,
+            49.809661
+          ],
+          "community_name": "Thunder Bay",
+          "formatted_w": "116",
+          "total_w": 116.02277009999999
+        },
+        {
+          "COORDINATES": [
+            -79.4175587,
+            44.6092059
+          ],
+          "community_name": "Orillia",
+          "formatted_w": "13",
+          "total_w": 12.56594685
+        },
+        {
+          "COORDINATES": [
+            -79.6901736,
+            44.3893113
+          ],
+          "community_name": "Barrie",
+          "formatted_w": "50",
+          "total_w": 50.31300225000001
+        },
+        {
+          "COORDINATES": [
+            -80.4538365,
+            42.7971532
+          ],
+          "community_name": "Norfolk",
+          "formatted_w": "19",
+          "total_w": 19.021184700000003
+        },
+        {
+          "COORDINATES": [
+            -75.48373388563095,
+            45.4528793
+          ],
+          "community_name": "Ottawa (Kanata - Orl\u00e9ans)",
+          "formatted_w": "88",
+          "total_w": 87.9471610500001
+        },
+        {
+          "COORDINATES": [
+            -82.5996998,
+            42.0531166
+          ],
+          "community_name": "Leamington",
+          "formatted_w": "19",
+          "total_w": 19.039610700000004
+        },
+        {
+          "COORDINATES": [
+            -82.0898417,
+            42.41833
+          ],
+          "community_name": "Chatham-Kent",
+          "formatted_w": "67",
+          "total_w": 66.9063
+        },
+        {
+          "COORDINATES": [
+            -79.3839347,
+            43.6534817
+          ],
+          "community_name": "Toronto",
+          "formatted_w": "1,239",
+          "total_w": 1238.5913625
+        },
+        {
+          "COORDINATES": [
+            -84.320068,
+            46.52391
+          ],
+          "community_name": "Sault Ste. Marie",
+          "formatted_w": "47",
+          "total_w": 47.025891
+        },
+        {
+          "COORDINATES": [
+            -76.481323,
+            44.230687
+          ],
+          "community_name": "Kingston",
+          "formatted_w": "21",
+          "total_w": 20.881339200000006
+        },
+        {
+          "COORDINATES": [
+            -79.8728583,
+            43.2560802
+          ],
+          "community_name": "Hamilton",
+          "formatted_w": "207",
+          "total_w": 207.27972630000002
+        },
+        {
+          "COORDINATES": [
+            -80.2631733,
+            43.1408157
+          ],
+          "community_name": "Brantford",
+          "formatted_w": "49",
+          "total_w": 48.5764638
+        },
+        {
+          "COORDINATES": [
+            -80.2493276,
+            43.5460516
+          ],
+          "community_name": "Guelph",
+          "formatted_w": "51",
+          "total_w": 50.54988840000001
+        },
+        {
+          "COORDINATES": [
+            -80.5036847,
+            43.4528527
+          ],
+          "community_name": "Kitchener-Waterloo",
+          "formatted_w": "163",
+          "total_w": 162.69032520000002
+        },
+        {
+          "COORDINATES": [
+            -79.5268023,
+            43.7941544
+          ],
+          "community_name": "Vaughan",
+          "formatted_w": "51",
+          "total_w": 51.4312488
+        },
+        {
+          "COORDINATES": [
+            -78.3199496,
+            44.3048009
+          ],
+          "community_name": "Peterborough",
+          "formatted_w": "19",
+          "total_w": 18.852885600000008
+        },
+        {
+          "COORDINATES": [
+            -78.74821223880971,
+            44.3543748
+          ],
+          "community_name": "Kawartha Lakes (Lindsay)",
+          "formatted_w": "11",
+          "total_w": 11.455381950000008
+        },
+        {
+          "COORDINATES": [
+            -83.0373389,
+            42.3167397
+          ],
+          "community_name": "Windsor",
+          "formatted_w": "115",
+          "total_w": 115.28126055
+        },
+        {
+          "COORDINATES": [
+            -89.1618188,
+            54.0245941
+          ],
+          "community_name": "Kenora",
+          "formatted_w": "14",
+          "total_w": 13.720510050000001
+        },
+        {
+          "COORDINATES": [
+            -79.2441003,
+            43.1579812
+          ],
+          "community_name": "St. Catharines",
+          "formatted_w": "62",
+          "total_w": 61.92760725000004
+        },
+        {
+          "COORDINATES": [
+            -77.3852556,
+            44.1633264
+          ],
+          "community_name": "Belleville",
+          "formatted_w": "10",
+          "total_w": 10.051968150000006
+        },
+        {
+          "COORDINATES": [
+            -81.330414,
+            48.477473
+          ],
+          "community_name": "Timmins",
+          "formatted_w": "24",
+          "total_w": 23.9486706
+        },
+        {
+          "COORDINATES": [
+            -78.8635324,
+            43.8975558
+          ],
+          "community_name": "Oshawa",
+          "formatted_w": "53",
+          "total_w": 53.28642330000001
+        },
+        {
+          "COORDINATES": [
+            -78.9421751,
+            43.87982
+          ],
+          "community_name": "Whitby",
+          "formatted_w": "17",
+          "total_w": 16.85347785
+        },
+        {
+          "COORDINATES": [
+            -80.9430094,
+            44.5678105
+          ],
+          "community_name": "Owen Sound",
+          "formatted_w": "14",
+          "total_w": 13.810722750000004
+        },
+        {
+          "COORDINATES": [
+            -77.2826645,
+            45.8984286
+          ],
+          "community_name": "Petawawa",
+          "formatted_w": "2",
+          "total_w": 1.503213
+        },
+        {
+          "COORDINATES": [
+            -77.113541,
+            45.8260909
+          ],
+          "community_name": "Pembroke",
+          "formatted_w": "2",
+          "total_w": 2.475309
+        },
+        {
+          "COORDINATES": [
+            -79.6789029,
+            47.508731
+          ],
+          "community_name": "Temiskaming Shores",
+          "formatted_w": "5",
+          "total_w": 5.397124800000001
+        },
+        {
+          "COORDINATES": [
+            -79.4607617,
+            46.3092115
+          ],
+          "community_name": "North Bay",
+          "formatted_w": "28",
+          "total_w": 28.215621750000004
+        },
+        {
+          "COORDINATES": [
+            -79.6443879,
+            43.5896231
+          ],
+          "community_name": "Mississauga",
+          "formatted_w": "146",
+          "total_w": 146.027295
+        },
+        {
+          "COORDINATES": [
+            -82.4065585,
+            42.9746137
+          ],
+          "community_name": "Sarnia",
+          "formatted_w": "39",
+          "total_w": 39.1055745
+        },
+        {
+          "COORDINATES": [
+            -80.9921545,
+            46.487489
+          ],
+          "community_name": "Sudbury (Greater)",
+          "formatted_w": "89",
+          "total_w": 88.58841075
+        }
+      ],
+      "elevationScale": 500,
+      "extruded": true,
+      "getElevation": "@@=total_w",
+      "getFillColor": "@@=[total_w * 25, total_w, total_w * 25, 220]",
+      "getPosition": "@@=COORDINATES",
+      "id": "2999b8ca-7ea4-4703-b633-8b59d805d782",
+      "pickable": true,
+      "radius": 5000.0
+    }
+  ],
+  "mapProvider": "carto",
+  "mapStyle": "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json",
+  "mapboxKey": "",
+  "views": [
+    {
+      "@@type": "MapView",
+      "controller": true
+    }
+  ]
+};
+    const tooltip = {'html': '<b>{community_name}:<br> {formatted_w}</b> MW heat demand</b>', 'style': {'background': 'grey', 'color': 'white', 'font-family': '"Helvetica Neue", Arial', 'z-index': '10000'}};
+    const customLibraries = null;
+    const configuration = null;
+
+    const deckInstance = createDeck({
+                  container,
+      jsonInput,
+      tooltip,
+      customLibraries,
+      configuration
+    });
+
+  </script>
+</html>

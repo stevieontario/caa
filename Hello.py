@@ -69,7 +69,7 @@ def set_png_as_page_bg(png_file):
 #set_png_as_page_bg('/home/steveaplin/Documents/eda/caa_avatar.png')
 #--- HEADER SECTION ---
 with st.container():
-    st.image('/var/www/html/cleanair/images/CA-Canada-Flag-icon.png', width=50)
+    st.image(path+'/images/CA-Canada-Flag-icon.png', width=50)
     st.subheader('Energy & Environment')
     st.title('We are the Canadian Clean Air Alliance :wave:')
     st.markdown('## Promoting clean air through clean electrical energy')

@@ -76,7 +76,7 @@ on_stations_lonlat = gpd.GeoDataFrame(on_stations[['Longitude', 'Latitude']], ge
 station_source = ColumnDataSource(on_stations_lonlat)
 # ---
 
-ut =  gpd.read_file('/home/steveaplin/Downloads/Utility_Line/Utility_Line.shp')
+ut =  gpd.read_file(full_path+'Utility_Line/Utility_Line.shp')
 ut_orig = ut.copy()
 pb = ut_orig.plot_bokeh(line_width=2, color='green', title='Ontario transmission network', tile_provider='OSM', show_figure=False)
 #pb.circle('x', 'y',  source=station_source, color='red', size=20)

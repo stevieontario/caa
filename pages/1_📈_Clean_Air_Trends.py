@@ -49,11 +49,7 @@ st_lottie(airPollution_coding, width=400)
 
 st.markdown('## Fighting climate change is the same as fighting air pollution')
 st.markdown('Power plants that produce air pollution also produce greenhouse gases. To eliminate both air pollution and GHGs, power plants must be zero emitting. Only hydro and nuclear are truly zero emitting.')
-path_to_html ='/home/steveaplin/Documents/eda/map1.html'
 
-# Read file and keep in variable
-with open(path_to_html,'r') as f:
-    html_data = f.read()
 
 ## Show in webpage
 st.markdown('## Ontario&#8217;s Clean Air energy system')

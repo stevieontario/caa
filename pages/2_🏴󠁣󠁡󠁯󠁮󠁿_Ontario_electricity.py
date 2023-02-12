@@ -316,11 +316,14 @@ with tab4:
             st.bokeh_chart(p1)
 
 with tab5:
-    sourceType = st.radio('Choose source/sink type', ['Baseload', 'Ramp1', 'Ramp2', 'Dancer'], index=3, horizontal=True)
+    sourceType = st.radio('Choose source/sink type', ['baseload', 'ramping', 'peaking', 'dancers'], index=3, horizontal=True)
+    unitTypes = open(full_path+'unit_classifications.json')
+    unitTypes = json.load(unitTypes)
+    unitType = unitTypes[sourceType]
     options = st.multiselect(
     'Choose your supply source(s)/sink(s)',
-    ['BARRETT', 'BECK1', 'BECK2', 'BRIGHTON BEACH', 'CANYON', 'CHATSFALLS', 'CHENAUX', 'DA WATSON', 'DESJOACHIMS', 'HALTONHILLS-LT.G1', 'HALTONHILLS-LT.G3', 'HARMON', 'HOLDEN', 'KIPLING', 'LITTLELONG', 'NAPANEE-G1', 'NAPANEE-G3', 'OTTERRAPIDS', 'PINEPORTAGE', 'PORTLANDS-G1', 'PORTLANDS-G2', 'PORTLANDS-G3', 'SITHE GOREWAY-G15', 'STCLAIRCGS', 'STEWARTVLE', 'TASARNIA', 'THOROLDCGS', 'WELLS', 'WHITEDOG', 'MANITOBA', 'MICHIGAN', 'MINNESOTA', 'NEW-YORK', 'PQ.AT', 'PQ.B5D.B31L', 'PQ.P33C'],
-    ['BARRETT'])
+    unitType,
+    unitType[0])
     
 
     col1a, col2a, col3a = st.columns([3, .5, 2.5], gap='large')

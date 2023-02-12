@@ -316,7 +316,7 @@ with tab4:
             st.bokeh_chart(p1)
 
 with tab5:
-    sourceType = st.radio('Choose source/sink type', ['baseload', 'ramping', 'peaking', 'dancers'], index=3, horizontal=True)
+    sourceType = st.radio('Choose source/sink type', ['nuclear', 'non-nuclear baseload', 'ramping', 'peaking', 'dancers'], index=3, horizontal=True)
     unitTypes = open(full_path+'unit_classifications.json')
     unitTypes = json.load(unitTypes)
     unitType = unitTypes[sourceType]

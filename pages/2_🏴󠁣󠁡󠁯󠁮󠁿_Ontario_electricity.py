@@ -90,11 +90,9 @@ solar = g(solar)
 gdws = dfs[wind_solar_mask].groupby([dfs[wind_solar_mask].index, 'unit']).mean().output.unstack() 
 gd_st_dt = gd.index.get_level_values(0)[0]
 gd_en_dt = gd.index.get_level_values(0)[-1]
-print('gd_en_dt: ', gd_en_dt)
 exim = exim.drop_duplicates()
 en_dt = exim.tail(1).index.values[0]
 en_dt = pd.to_datetime(en_dt)
-print('en_dt: ', en_dt)
 exim_matched = exim.loc[gd_st_dt:gd_en_dt] #########
 exim_matched = exim.iloc[:, :-3].multiply(1)# in on_net_dem_svd.py this is multiplied by -1
 del exim_matched['datehour']
@@ -312,11 +310,10 @@ with tab4:
             p1.circle(pd.to_datetime(a.loc[year,intertie].resample(per).mean().index.values), a.loc[year,intertie].resample(per).mean().values, fill_color=tableau_colors[3], line_color=tableau_colors[3])
             hline = Span(location=0, dimension='width', line_color='black', line_width=3)
             p1.renderers.extend([hline])
-            print('Que-HOOP-nuyr: ', a.loc['dec 30 2022', intertie])
             st.bokeh_chart(p1)
 
 with tab5:
-    sourceType = st.radio('Choose source/sink type', [s.title() for s in ['nuclear', 'non-nuclear baseload', 'ramping', 'peaking', 'dancers']], index=3, horizontal=True)
+    sourceType = st.radio('Choose source/sink type', [s.title() for s in ['nuclear', 'non-nuclear baseload', 'ramping', 'peaking', 'dancers']], index=4, horizontal=True)
     unitTypes = open(full_path+'unit_classifications.json')
     unitTypes = json.load(unitTypes)
     unitType = unitTypes[sourceType.lower()]

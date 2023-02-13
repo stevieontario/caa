@@ -316,10 +316,10 @@ with tab4:
             st.bokeh_chart(p1)
 
 with tab5:
-    sourceType = st.radio('Choose source/sink type', ['nuclear', 'non-nuclear baseload', 'ramping', 'peaking', 'dancers'], index=3, horizontal=True)
+    sourceType = st.radio('Choose source/sink type', [s.title() for s in ['nuclear', 'non-nuclear baseload', 'ramping', 'peaking', 'dancers']], index=3, horizontal=True)
     unitTypes = open(full_path+'unit_classifications.json')
     unitTypes = json.load(unitTypes)
-    unitType = unitTypes[sourceType]
+    unitType = unitTypes[sourceType.lower()]
     options = st.multiselect(
     'Choose your supply source(s)/sink(s)',
     unitType,
@@ -347,7 +347,7 @@ with tab5:
         y = netdem.values
         y2 = newdf.Total.values
         
-        title = 'Ontario net demand and highest variance net supply sources/sinks. Megawatts'
+        title = 'Ontario net demand and sum of selected '+sourceType.title()+' sources/sinks. MW'
         pt = figure(title=title, x_range=(dems.index[0], dems.index[-1]), y_range=(0, dems['Ontario Demand'].max()), tools=tools)
         
         pt.line(x, y, color=tableau_colors[0], line_width=3)

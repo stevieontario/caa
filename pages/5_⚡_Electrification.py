@@ -13,7 +13,27 @@ relative_path = '/data/'
 path = os.path.dirname(__file__) #/var/www/html/etrak_site/pages
 path_parent = os.path.dirname(path)
 full_path = path_parent+relative_path
+print('path: ', path, '. path_parent: ', path_parent)
+s = 'path:  /var/www/html/cleanair/pages . path_parent:  /var/www/html/cleanair'
+tooltip_css = '''
+.tooltip {
+  display: inline;
+  position: relative;
+  color=blue
+}
+.tooltip:hover:after {
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    color: black
+}
 
+.tooltip:hover:before {
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    color: black
+} '''
 
 # https://www.webfx.com/tools/emoji-cheat-sheet/
 st.set_page_config(page_title='Clean Air Alliance Electrification', page_icon='📈', layout='wide')
@@ -87,10 +107,14 @@ The &#8220;low hanging fruit&#8221; of electrification is the projects we can do
         The last available pumped storage site in Ontario, TC Energy&#8217;s facility at Meaford, is currently under development. That narrows the list of viable grid-scale energy storage options to thermal media&mdash;building mass and hot water. Chemical batteries have a role, but in small to medium-scale (less than 100 kW) applications, including cars and some heavier vehicles like buses and trucks.
         """
         st.markdown(storage_options)
+        #--- beginning of proper ontario heat map
+# --- ONTARIO "HEAT" MAP -- 
+        df = pd.read_csv(path_parent+'/data/on_weather_stationdata_noLDC.csv', header=0)
 
-        # --- ONTARIO "HEAT" MAP -- 
-        df = pd.read_csv(full_path+'ontario_heat_demand.csv', header=0)
-        print(df.head())
+
+        df= df.astype({'bearing':float, 'dewpoint':float, 'pressure':float, 'humidity':float, 'windspeed':float, 'temp':float, 'visibility':float, 'windchill':float, 'gust':float, 'realTemp':float, 'temp_delta':float, 'dwellings':float, 'ceiling_w':float, 'window_w':float, 'noWindowWall_w':float, 'floor_w':float, 'total_w':float, 'total_w_per_dwelling':float })
+
+        #df = df.drop(['community_name.1', 'datehour_ec', 'datehour_my'], axis=1)
         df['Longitude'] = np.where(df.community_name=='Thunder Bay', -89.2477, df.Longitude)
         df['Longitude'] = np.where(df.community_name=='Kenora', -94.4894, df.Longitude)
         df['Latitude'] = np.where(df.community_name=='Thunder Bay', 48.382221, df.Latitude)
@@ -99,17 +123,30 @@ The &#8220;low hanging fruit&#8221; of electrification is the projects we can do
         z = [list(t) for t in zip(df.Longitude.values, df.Latitude.values)]
         df['COORDINATES'] = z
         df['total_w'] = df['total_w'].divide(1e6)
-        df = df.copy()[['COORDINATES', 'total_w', 'community_name']]
+
+        df = df.copy()[['COORDINATES', 'datehour_my', 'total_w', 'community_name']]
+
                
         df['formatted_w'] = df['total_w'].apply(lambda d: '{0:,.0f}'.format(d) if d >= 1 else '{0:,.2f}'.format(d))
+        dt = df['datehour_my'].values[0]
+        dt = pd.to_datetime(dt).strftime('%a %b %d %I%p')
+        df_sums = df['total_w'].sum()
+        df_sums_dict = {'Bruce Nuclear Station Capacity':6000, 'Total Ontario Residential Heat Demand':df_sums,
+            'Adam Beck 2 Hydro Generator':1630, 'TC Energy Pumped Storage Hydro':1000, 'Oneida Battery':250}
+        df_totals = pd.DataFrame.from_dict(df_sums_dict, orient='index')
+
+        df_totals = pd.Series(df_sums_dict)
+
         layer = pdk.Layer(
         "ColumnLayer",
         data=df,
         pickable=True,
         extruded=True,
+        wireframe=True,
         get_elevation='total_w',
-        radius=5e3,
-        get_fill_color=["total_w * 25", "total_w", "total_w * 25", 220],
+        radius=1.2e4,
+        #get_fill_color=["total_w * 25", "total_w", "total_w * 25", 220],
+        get_fill_color=[50, 0, 0, 50],
         elevation_scale=500,
         get_position="COORDINATES",
         auto_highlight=True
@@ -117,12 +154,27 @@ The &#8220;low hanging fruit&#8221; of electrification is the projects we can do
 
         lat = 46.3862 # Elliott Lake ON
         lon = -82.6509
+        lat = 43.4516 # kitchener on
+        lon = -80.4925
+
        
-        view_state = pdk.ViewState(latitude=lat, longitude=lon, zoom=4.255, bearing=0, pitch=45)
+        view_state = pdk.ViewState(latitude=lat, longitude=lon, zoom=4.75, bearing=0, pitch=50, height=350 )
         tooltip = {
         "html": "<b>{community_name}:<br> {formatted_w}</b> MW heat demand</b>",
         "style": {"background": "grey", "color": "white", "font-family": '"Helvetica Neue", Arial', "z-index": "10000"},
         }
+        tooltip = {
+                    "html": "<style> "+tooltip_css+" </style> <div class='tooldip'><b>{community_name}:<br> {formatted_w} MW</b> residential space heat demand </b></div>",
+            "style": {"background": "lightgrey", "color": "black", "font-family": '"Helvetica Neue", Arial', "z-index": "10000", "display": "inline",
+    "position":"relative",
+    "display":"block",
+    "top": "-25%",
+    "left": "5%",
+    "width":"50%",
+    "margin-left":"-25%",
+    "text-align": "left"},
+            }
+
         # Render
         r = pdk.Deck(
         layers=[layer],
@@ -130,14 +182,9 @@ The &#8220;low hanging fruit&#8221; of electrification is the projects we can do
         initial_view_state=view_state,
         tooltip=tooltip,
         )
-        r.to_html("grid_layer.html")
 
-        st.markdown('##### Ontario residential space heating demand')
-        space_heating = '''
-On cold days, the demand for space heating in Ontario communities outstrips that for electricity.
-        '''
-        st.markdown(space_heating)
         st.pydeck_chart(r)
+        #--- end of proper ontario heat map
 
     with col2:
         st.markdown('### The role of rail in higher electricity availability standards')

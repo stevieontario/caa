@@ -13,6 +13,9 @@ path = os.path.dirname(__file__) #/var/www/html/etrak_site/pages
 path_parent = os.path.dirname(path)
 full_path = path_parent+relative_path
 
+def V_SPACE(lines):
+    for _ in range(lines):
+        st.write('&nbsp;')
 
 # https://www.webfx.com/tools/emoji-cheat-sheet/
 
@@ -33,9 +36,7 @@ def load_lottieurl(url):
 
 house_energy = load_lottieurl('https://assets4.lottiefiles.com/packages/lf20_ulfrygzw.json')
 meeting_json = load_lottieurl('https://assets1.lottiefiles.com/packages/lf20_7mpsnbrj.json')
-print('path: ', path)
 image_contact_form = Image.open(path+'/images/contact.png')
-#waste_waffle = Image.open('/var/www/html/Documents/tw/waste_waffle.png-1.png')
 
 # --- USE LOCAL CSS ---
 def local_css(file_name):
@@ -84,18 +85,16 @@ with st.container():
     '''
     st.markdown(promoting_blurb)
     why_caa = 'Clean air is within our reach, and we can achieve it with proven, available technology, without sacrificing comfort and quality of life. Canada&#8217;s environment and economy deserve strong, honest, fact-based representation in the energy sector. We engage the public and policymakers with good information on this critical subject, to cut through the distortions and misinformation that sometimes pervade the debate.'
-    #annotated_text((why_caa, "why a clean air alliance?", '#faa' ))
     st.markdown(why_caa)
 
 # --- WHAT I DO ---
 with st.container():
-    st.write('---')
+    V_SPACE(1)
     left_column, right_column = st.columns(2)
     with left_column:
         st.header('What we do')
         what_we_do = 'We work with policymakers at the bureaucratic and elected levels of municipal, provincial, and federal governments in Canada to find feasible, equitable pathways to decarbonizing energy in Canada'
         st.write(what_we_do)
-
         st_lottie(meeting_json, width=350)
         st.header('Our areas of advocacy')
         areas_of_advocacy = '''
@@ -111,7 +110,6 @@ Learn more about these areas of focus by exploring the topics in the sidebar.
         '''
         st.markdown(areas_of_advocacy)
     with right_column:
-        #st_lottie(house_energy, width=100)
         st.header('Who we are')
         who_we_are = '''
 We are literally an alliance. We are a group of labour unions, led by the Canadian Nuclear Workers&#8217; Council, itself an umbrella organization representing labour unions across the nuclear sector.
@@ -164,9 +162,8 @@ Canadian households, businesses, and transport networks run on quiet, clean effi
     ## Execute your app
     #st.title("Javascript example")
     #html(my_html)
-    st.write('---')
+    V_SPACE(1)
     st.header('Contact us')
-    st.write('###')
     contact_form = """
     <form action="https://formsubmit.co/bwalker@cnwc-cctn.ca" method="POST">
      <input type="hidden" name="_captcha" value='false'>
@@ -180,5 +177,4 @@ Canadian households, businesses, and transport networks run on quiet, clean effi
     left_col, right_col = st.columns(2)
     with left_col:
        st.markdown(contact_form, unsafe_allow_html=True)
-    #with right_col:
-    #    st.empty()
+    

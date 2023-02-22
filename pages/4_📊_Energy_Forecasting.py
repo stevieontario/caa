@@ -6,6 +6,7 @@ import pandas as pd
 from streamlit_lottie import st_lottie
 import json
 from bokeh.layouts import gridplot
+from bokeh.models import ColumnDataSource, Whisker
 tableau_colors = ["#4e79a7","#f28e2c","#e15759","#76b7b2","#59a14f","#edc949","#af7aa1","#ff9da7","#9c755f","#bab0ab"]
 fc = '/var/www/html/cleanair/images/forecast.json'
 
@@ -71,7 +72,7 @@ with st.container():
         st.markdown('### Electrification will increase range of demand')
         forecasting_blurb = '**_Toronto electrical demand_**, shown below, has since 2002 occurred within fairly narrow and predictable ranges. However, electrification will increase those ranges. Since 2002, outlier demand values&mdash;values that are abnormally distant from most other values&mdash;have fallen within a manageable 1,000&ndash;1,500 MW range. With electrification, these ranges will increase, by as much as 5,000 megawatts, perhaps more. Managing these sharp demand swings will be a challenge for both the municipal LDC (Toronto Hydro) and the Ontario system operator.'
         st.markdown(forecasting_blurb)
-        import iqplot
+        #import iqplot
         
         tdf = pd.read_csv(full_path+'zonedem_since_2003.csv')
         weath = pd.read_csv(full_path+'weather_since_2003.csv')
@@ -143,56 +144,56 @@ with st.container():
         train['dayname'] = [val[:3] for val in train['dayname'].values]
         train['Temp range'] = train['temp'].apply(temp_ranges)
         train = train.copy().sort_values('dow', ascending=True)
-        p1_box = iqplot.box(        data=train,
-        cats='dayname',
-        q ='Toronto',
-        q_axis='y',
-        whisker_caps=True,
-        outlier_marker='diamond',
-        outlier_kwargs=dict(size=10, color=tableau_colors[3]),
-        box_kwargs=dict(fill_color=tableau_colors[2], width=.75),
-        whisker_kwargs=dict(line_color='#7C0000', line_width=3),
-        toolbar_location = 'right',
-        tools=tools,
-        title="Toronto electricity demand by day of week, 2002"+endash+"2015"
-        )
-        p1_box.yaxis.axis_label = 'MW'
-        train_hr_sorted = train.copy().sort_values('hr')
-        train_temp_sorted = train.copy().sort_values('temp')
-        p2_box = iqplot.box(        data=train_hr_sorted,
-        cats='hr',
-        q ='Toronto',
-        q_axis='y',
-        whisker_caps=True,
-        outlier_marker='diamond',
-        outlier_kwargs=dict(size=10, color=tableau_colors[3]),
-        box_kwargs=dict(fill_color=tableau_colors[2], width=.75),
-        whisker_kwargs=dict(line_color='#7C0000', line_width=3),
-        toolbar_location = 'right',
-        tools=tools,
-        title="Toronto electricity demand by hour of day, 2002"+endash+"2015"
-        )
-        p2_box.yaxis.axis_label = 'MW'
-        p3_box = iqplot.box(        data=train_temp_sorted,
-        cats='Temp range',
-        q ='Toronto',
-        q_axis='y',
-        whisker_caps=True,
-        outlier_marker='diamond',
-        outlier_kwargs=dict(size=10, color=tableau_colors[3]),
-        box_kwargs=dict(fill_color=tableau_colors[2], width=.75),
-        whisker_kwargs=dict(line_color='#7C0000', line_width=3),
-        toolbar_location = 'right',
-        tools=tools,
-        title="Tor. electricity demand by outdoor temperature, 2002"+endash+"2015"
-        )
-
-        p3_box.yaxis.axis_label = 'MW'
-        #grid = gridplot([p1_box, p2_box, p3_box], ncols=2, width=250, height=250)
-        st.bokeh_chart(p2_box)
-        with st.expander('see boxcharts for day of week and outdoor temperature'):
-            st.bokeh_chart(p1_box)
-            st.bokeh_chart(p3_box)
+#        p1_box = iqplot.box(        data=train,
+#        cats='dayname',
+#        q ='Toronto',
+#        q_axis='y',
+#        whisker_caps=True,
+#        outlier_marker='diamond',
+#        outlier_kwargs=dict(size=10, color=tableau_colors[3]),
+#        box_kwargs=dict(fill_color=tableau_colors[2], width=.75),
+#        whisker_kwargs=dict(line_color='#7C0000', line_width=3),
+#        toolbar_location = 'right',
+#        tools=tools,
+#        title="Toronto electricity demand by day of week, 2002"+endash+"2015"
+#        )
+#        p1_box.yaxis.axis_label = 'MW'
+#        train_hr_sorted = train.copy().sort_values('hr')
+#        train_temp_sorted = train.copy().sort_values('temp')
+#        p2_box = iqplot.box(        data=train_hr_sorted,
+#        cats='hr',
+#        q ='Toronto',
+#        q_axis='y',
+#        whisker_caps=True,
+#        outlier_marker='diamond',
+#        outlier_kwargs=dict(size=10, color=tableau_colors[3]),
+#        box_kwargs=dict(fill_color=tableau_colors[2], width=.75),
+#        whisker_kwargs=dict(line_color='#7C0000', line_width=3),
+#        toolbar_location = 'right',
+#        tools=tools,
+#        title="Toronto electricity demand by hour of day, 2002"+endash+"2015"
+#        )
+#        p2_box.yaxis.axis_label = 'MW'
+#        p3_box = iqplot.box(        data=train_temp_sorted,
+#        cats='Temp range',
+#        q ='Toronto',
+#        q_axis='y',
+#        whisker_caps=True,
+#        outlier_marker='diamond',
+#        outlier_kwargs=dict(size=10, color=tableau_colors[3]),
+#        box_kwargs=dict(fill_color=tableau_colors[2], width=.75),
+#        whisker_kwargs=dict(line_color='#7C0000', line_width=3),
+#        toolbar_location = 'right',
+#        tools=tools,
+#        title="Tor. electricity demand by outdoor temperature, 2002"+endash+"2015"
+#        )
+#
+#        p3_box.yaxis.axis_label = 'MW'
+#        #grid = gridplot([p1_box, p2_box, p3_box], ncols=2, width=250, height=250)
+#        st.bokeh_chart(p2_box)
+#        with st.expander('see boxcharts for day of week and outdoor temperature'):
+#            st.bokeh_chart(p1_box)
+#            st.bokeh_chart(p3_box)
 
     with col2:
         st.markdown('### EV charging and electric heat')

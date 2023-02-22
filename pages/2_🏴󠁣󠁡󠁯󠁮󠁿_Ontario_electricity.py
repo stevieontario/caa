@@ -61,7 +61,7 @@ def load_lottieurl(url):
 #heater_coding = load_lottieurl('https://assets8.lottiefiles.com/packages/lf20_FCYi2l.json')
 #st_lottie(lightbulb_coding, width=200)
 
-tableau_colors = ["#4e79a7","#f28e2c","#e15759","#76b7b2","#59a14f","#edc949","#af7aa1","#ff9da7","#9c755f","#bab0ab"]
+tableau_colors = ["#4e79a7","#f28e2c","#e15759","#76b7b2","#59a14f","#edc949","#af7aa1","#ff9da7","#9c755f","#bab0ab", "red", "blue"]
 tools=["pan,wheel_zoom,reset,save,xbox_zoom, ybox_zoom"] # bokeh web tools
 endash = u'\u2013'
 demand_color = '#1f77b4'
@@ -170,7 +170,7 @@ With this in mind, the question becomes: for what purpose should these mostly pu
         imports.index = np.arange(0, 6)
         exports.index = np.arange(0, 6)
         
-        years = ['2018', '2019', '2020', '2021', '2022']
+        years = ['2018', '2019', '2020', '2021', '2022', '2023']
         yl = len(years)
         
         p = figure(y_range=interties, x_range=(-9e13, 9e13), title="Ontario electricity exports (+) and imports ("+endash+"), Wh by year", tools=tools)

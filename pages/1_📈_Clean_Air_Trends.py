@@ -163,7 +163,9 @@ Electrification eliminates the need for pilot lights, because it removes the nee
         * Hydro.
         * Variable renewable energy (VRE).
         * Nuclear.
-        Because VRE depends on dispatchable power sources, a VRE-intensive system must include either hydro or nuclear or both. Most electricity systems in Canada have already tapped their available hydro resources. This leaves only nuclear as the backbone of expanded electricity generation.
+        Because VRE depends on dispatchable power sources, a VRE-intensive system must include either hydro or nuclear or both. Most electricity systems in Canada have already tapped their available hydro resources. For most Canadian provinces, this leaves only nuclear as the backbone of expanded electricity generation.
+
+        In the provinces that could expand hydro, the question is, should they? All new hydro development would have to occur in areas covered with Boreal forest. This vital ecosystem serves as a carbon sink, and, literally, as a clean air source. All environmental organizations oppose megaprojects in Boreal ecosystems, for exactly this reason. 
         '''
         st.markdown(cleanAirData_blurb)
         l = '[See Muncipalities page](/Municipalities)'

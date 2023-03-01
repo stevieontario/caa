@@ -73,7 +73,7 @@ with st.container():
     st.image(path+'/images/CA-Canada-Flag-icon.png', width=50)
     st.subheader('Energy & Environment')
     st.title('We are the Canadian Clean Air Alliance :wave:')
-    st.markdown('## Promoting clean air through clean electrical energy')
+    st.markdown('## &#8220;Promoting clean air through clean electrical energy&#8221;')
     promoting_blurb = '''
     We advocate for proven, realistic ways to achieve clean air, through actual clear energy. The Canadian provinces of Ontario and Quebec are the two greatest examples in North America of the electrical transition that is coming. Both have uncommonly clean electricity. Quebec&mdash;with long, cold winters&mdash;heats mostly with electricity, one of the few jurisdictions in North America that does so. Given that heating represents by far the single biggest energy use category in all Canadian provinces, that&#8217;s quite an achievement.
 
@@ -84,7 +84,7 @@ with st.container():
     2. All new generation capacity should be nuclear.
     '''
     st.markdown(promoting_blurb)
-    why_caa = 'Clean air is within our reach, and we can achieve it with proven, available technology, without sacrificing comfort and quality of life. Canada&#8217;s environment and economy deserve strong, honest, fact-based representation in the energy sector. We engage the public and policymakers with good information on this critical subject, to cut through the distortions and misinformation that sometimes pervade the debate.'
+    why_caa = 'Clean air is within our reach, and we can achieve it with proven, available technology, without sacrificing comfort and quality of life. Canada&#8217;s environment and economy deserve strong, honest, fact-based representation in the energy sector. At the Canadian Clean Air Alliance, we engage the public and policymakers with good information on this critical subject, to cut through the distortions and misinformation that often pervade the debate.'
     st.markdown(why_caa)
 
 # --- WHAT I DO ---
@@ -93,7 +93,7 @@ with st.container():
     left_column, right_column = st.columns(2)
     with left_column:
         st.header('What we do')
-        what_we_do = 'We work with policymakers at the bureaucratic and elected levels of municipal, provincial, and federal governments in Canada to find feasible, equitable pathways to decarbonizing energy in Canada'
+        what_we_do = 'We work with policymakers at the bureaucratic and elected levels of municipal, provincial, and federal governments in Canada to find feasible, equitable pathways to decarbonizing energy in Canada. Our advocacy is fact based, using publicly available data to guide our policy recommendations.'
         st.write(what_we_do)
         st_lottie(meeting_json, width=350)
         st.header('Our areas of advocacy')
@@ -118,9 +118,19 @@ We are literally an alliance. We are a group of labour unions, led by the Canadi
         st.write('[Visit the CNWC&#8217;s website >](https://cnwc-cctn.ca/)')
         st.header('Our clean air vision')
         clean_air_vision = '''
-Canadian households, businesses, and transport networks run on quiet, clean efficient electricity, made in Canadian power plants by Canadian workers.
+Canadian households, businesses, and transport networks run on clean, quiet, affordable electricity, made in Canadian power plants by Canadian workers and Canadian equipment.
         '''
         st.markdown(clean_air_vision)
+        st.header('Our clean air mission')
+        clean_air_mission = '''
+To put fact and data-driven cases to policymakers at Canadian municipal, provincial, and federal government levels, that advise on how to meet clean air and climate change targets in the most proven and economically viable ways.
+
+To promote the health of Canadians and the Canadian environment through proven, cost effective energy solutions.
+
+To draw on our deep expertise and decades of direct experience in Canada's most vital energy markets to inform policymakers.
+        '''
+        st.markdown(clean_air_mission)
+
 
 
 

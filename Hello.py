@@ -123,6 +123,8 @@ Canadian households, businesses, and transport networks run on clean, quiet, aff
         st.markdown(clean_air_vision)
         st.header('Our clean air mission')
         clean_air_mission = '''
+To be the premier voice for clean air through clean energy in Canada, in urban and rural areas, in workplaces and recreational spaces.
+
 To put fact and data-driven cases to policymakers at Canadian municipal, provincial, and federal government levels, that advise on how to meet clean air and climate change targets in the most proven and economically viable ways.
 
 To promote the health of Canadians and the Canadian environment through proven, cost effective energy solutions.

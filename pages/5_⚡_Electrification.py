@@ -134,6 +134,7 @@ The &#8220;low hanging fruit&#8221; of electrification is the projects we can do
         df_sums_dict = {'Bruce Nuclear Station Capacity':6000, 'Total Ontario Residential Heat Demand':df_sums,
             'Adam Beck 2 Hydro Generator':1630, 'TC Energy Pumped Storage Hydro':1000, 'Oneida Battery':250}
         df_totals = pd.DataFrame.from_dict(df_sums_dict, orient='index')
+        df['datehour_formatted'] = pd.to_datetime(df['datehour_my']).dt.strftime('%a %b %d, %I%p')
 
         df_totals = pd.Series(df_sums_dict)
 
@@ -164,7 +165,7 @@ The &#8220;low hanging fruit&#8221; of electrification is the projects we can do
         "style": {"background": "grey", "color": "white", "font-family": '"Helvetica Neue", Arial', "z-index": "10000"},
         }
         tooltip = {
-                    "html": "<style> "+tooltip_css+" </style> <div class='tooldip'><b>{community_name}:<br> {formatted_w} MW</b> residential space heat demand </b></div>",
+                    "html": "<style> "+tooltip_css+" </style> <div class='tooldip'><b>{community_name}, {datehour_formatted}:<br> {formatted_w} MW</b> residential space heat demand </b></div>",
             "style": {"background": "lightgrey", "color": "black", "font-family": '"Helvetica Neue", Arial', "z-index": "10000", "display": "inline",
     "position":"relative",
     "display":"block",
@@ -184,6 +185,25 @@ The &#8220;low hanging fruit&#8221; of electrification is the projects we can do
         )
 
         st.pydeck_chart(r)
+        st.markdown('### Major areas of electrification opportunity')
+        st.markdown('''
+CNWC publishes a [series of policy position papers](https://cnwc-cctn.ca/category/policy-positions/) that identify major areas of activity and suggest ways to achieve electrification as expeditiously as possible.
+
+These areas are:
+
+1. Road and rail transport.
+    * Direct from grid.
+    * Battery-based.
+1. Industrial.
+    * Data Centres.
+    * Vertical farms.
+    * Hot water.
+    * Heat pumps.
+1. Urban on- and &#8220;off-grid&#8221; applications.
+    * Construction site power.
+    * Mobile non-EV batteries, e.g. film sets.
+    * Recreational site power, e.g. public parks and recreation areas.
+        ''')
         #--- end of proper ontario heat map
 
     with col2:

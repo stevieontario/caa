@@ -16,9 +16,10 @@ from bokeh.sampledata.autompg import autompg_clean as dfb
 from bokeh.models import ColumnDataSource
 from bokeh.palettes import GnBu3, OrRd3
 from bokeh.plotting import figure, show
-from bokeh.models import ColumnDataSource, Grid, HBar, LinearAxis, Plot, Div
+from bokeh.models import ColumnDataSource, Grid, HBar, LinearAxis, Plot, Div, HoverTool
 import bokeh as bk
 
+from pyproj import Transformer
 
 import os
 path = os.path.dirname(__file__)
@@ -71,14 +72,34 @@ cols = ['Station Name', 'Address', 'y', 'x', 'Station Type',
 on_stations['info'] = 'Station: '+on_stations['Station Name']+'.\n Address: '+on_stations['Address']+'.\n Pollutants measured: '+on_stations['Pollutants Measured']+'.\n Height of Air Intake: '+on_stations['Height of Air Intake']+'.'
 on_stations['info'] = on_stations['info'].str.replace('..', '.', regex=False)
 
-print(on_stations.columns)
-on_stations_lonlat = gpd.GeoDataFrame(on_stations[['Longitude', 'Latitude']], geometry=gpd.points_from_xy(on_stations['Longitude'], on_stations['Latitude']))
+on_stations_lonlat = gpd.GeoDataFrame(on_stations[['Longitude', 'Latitude', 'Station Name', 'Address']], geometry=gpd.points_from_xy(on_stations['Longitude'], on_stations['Latitude']))
+
+stn_cols = ['Longitude', 'Latitude', 'Station_Name', 'Address', 'geometry']
+on_stations_lonlat.columns = stn_cols
+print(on_stations_lonlat.columns)
+lonlat_to_webmercator = Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True)
+
+def mytransform(lon, lat):
+    x, y = lonlat_to_webmercator.transform(lon, lat)
+    return x, y
+xy = [mytransform(c[0], c[1]) for c in zip(on_stations_lonlat['Longitude'], on_stations_lonlat['Latitude'])]
+ex = [c[0] for c in xy]
+weye = [c[1] for c in xy]
+on_stations_lonlat['x'] = ex
+on_stations_lonlat['y'] = weye
+del on_stations_lonlat['geometry']
 station_source = ColumnDataSource(on_stations_lonlat)
 # ---
 
 ut =  gpd.read_file(full_path+'Utility_Line/Utility_Line.shp')
 ut_orig = ut.copy()
-pb = ut_orig.plot_bokeh(line_width=2, color='green', title='Ontario transmission network', tile_provider='OSM', show_figure=False)
+pb = ut_orig.plot_bokeh(line_width=2, color='green', title='Ontario air quality monitoring stations and electricity transmission lines', tile_provider='OSM', show_figure=False, legend=False)
+
+my_hover = HoverTool()
+my_hover.tooltips = [('Name of station', '@Station_Name'), ('Address', '@Address')]
+test = (-9080854.065614054, 5518069.532328642)
+pb.scatter(x='x', y='y', source=station_source, color='blue', size=10)
+pb.add_tools(my_hover)
 #pb.circle('x', 'y',  source=station_source, color='red', size=20)
 
 
@@ -180,7 +201,13 @@ Electrification eliminates the need for pilot lights, because it removes the nee
     with col1:
         st.markdown('## What we ***don&#8217;t*** know about urban outdoor air pollution')
         what_we_know = '''
-The map above shows the locations of the Ontario provincial ministry&#8217;s air quality monitoring stations in Ontario. As you can see, there are relatively few stations. Toronto, Canada&#8217;s largest city, has only four. Of these, only one (Toronto West) measures carbon monoxide, the most prolific toxic killer in the world. This in spite of the fact that there are literally tens of thousands of CO-emitting motor vehicles passing literally within meters of tens of thousands of pedestrians during most hours of every day.
+The map above shows the locations (blue circles) of the Ontario provincial ministry&#8217;s air quality monitoring stations in Ontario. As you can see, there are relatively few stations. Toronto, Canada&#8217;s largest city, has only four. Of these, only one (Toronto West) measures carbon monoxide, the most prolific toxic killer in the world. This in spite of the fact that there are literally tens of thousands of CO-emitting motor vehicles passing literally within meters of tens of thousands of pedestrians during most hours of every day.
+
+It is no coincidence that all the monitoring stations have street addresses. They are on streets, where cars drive.
+
+The green lines on the map represent electricity transmission lines. Each of these lines begins at a power generation plant. Under electrification, the power that propels cars on streets will be manufactured in power generation plants. At that point, the only pollutants from cars on streets will be from the mechanical action of tires on road surfaces.
+
+Will combustion-related air pollution also disappear under electrification? Only if the generation that makes the &#8220;new,&#8221; non-combustible-fueled, energy for transportation is non-emitting.
         '''
         st.markdown(what_we_know)
 

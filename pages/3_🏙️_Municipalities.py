@@ -19,7 +19,7 @@ from bokeh.models import DatetimeTickFormatter
 from streamlit_lottie import st_lottie
 from bokeh.models import Span
 from bokeh.models import HoverTool
-from bokeh.tile_providers import CARTODBPOSITRON, get_provider
+from bokeh.tile_providers import CARTODBPOSITRON, OSM, STAMEN_TONER, STAMEN_TERRAIN, get_provider
 import geopandas as gpd
 
 import xyzservices.providers as xyz
@@ -75,9 +75,8 @@ with st.container():
         st.image(full_path+'3_energies_4_dims.png')
         st.markdown('### Inflation-proof energy')
         st.markdown('Because electrification will necessitate a massive expansion of bulk electricity generation, economies of scale will drive the cost and price of electricity down, reversing the trend of escalating costs and prices that has developed over the past two decades.')
-        st.markdown('### Variable renewable energy increases electricity system costs, reduces LDC revenue')
-        st.markdown('VRE resources increase system costs, because they reduce the operating efficiency of the supply sources that play the biggest role in meeting net demand. When those &#8220;balancers&#8221; are themselves non-emitting, the VRE sources superfluous to meeting climate goals. ')
-
+        st.markdown('### The geography of electrification')
+        st.markdown('The LDCs on the map represent the geographic and corporate centres of electrical power in Ontario. These areas are of course also very significant ***energy*** centres, in that they contain many thousands of individual stationary and mobile combustion engines, in the form of car engines and home furnaces. With widespread electrification, these corporations will become the main ***energy*** providers in their communities, replacing filling stations and gas companies as the primary providers of transportation and heating energy.')
         # --- BOKEH ONTARIO LDC MAP --
         ldc = gpd.read_file(full_path+'ldc.shp')
         ldc['geometry'] = ldc['geometry'].to_crs(3857)
@@ -101,7 +100,7 @@ with st.container():
         lsource = ColumnDataSource(l)
         p_ldc = figure(title='LDCs in Ontario', tools='box_select,tap,pan,wheel_zoom,reset, save, hover', x_axis_type="mercator", y_axis_type="mercator")
         p_ldc.multi_line('x', 'y', source=lsource, line_color='color', line_width=3)
-        tile_provider = get_provider(CARTODBPOSITRON)
+        tile_provider = get_provider(STAMEN_TERRAIN)
         #tile_provider = get_provider(xyz.OpenStreetMap.Mapnik)
         p_ldc.add_tile(tile_provider)
         p_ldc.yaxis.axis_label = 'Latitude'
@@ -115,6 +114,10 @@ with st.container():
         # --
 
     with col2:
+        st.markdown('### Variable renewable energy sources increase electricity system costs, reduce LDC revenue')
+        st.markdown('VRE resources increase system costs, because they reduce the operating efficiency of the supply sources that play the biggest role in meeting net demand. When those &#8220;balancers&#8221; are themselves non-emitting, the VRE sources are superfluous to meeting climate goals, and in many cases detrimental. By increasing system costs and thereby prices, VRE sources make grid electricity less economically competitive next to cheap hydrocarbons. In Ontario, grid electricity is four to five times as expensive as natural gas, per unit of energy&mdash;and that is in spite of the carbon tax which is applied to natural gas but not electricity.')
+
+
         st.markdown('### Dramatic rise in urban air quality')
         st.markdown('The overwhelming cause of poor urban air quality is gasoline and diesel powered road vehicles')
         st.markdown('### Municipalities have a direct stake in electricity price reform')

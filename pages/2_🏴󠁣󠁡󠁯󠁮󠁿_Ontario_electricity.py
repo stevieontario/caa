@@ -16,16 +16,24 @@ from bokeh.palettes import GnBu3, OrRd3
 from bokeh.plotting import figure, show
 from bokeh.models import DatetimeTickFormatter
 from streamlit_lottie import st_lottie
-from bokeh.models import Span
-from bokeh.models import HoverTool
+from bokeh.models import Span, Row, Column
+from bokeh.models import HoverTool, MultiSelect
 from bokeh.models import LinearAxis, Range1d
 from bokeh.models import NumeralTickFormatter
+from bokeh.models.widgets import RadioButtonGroup
+
+from bokeh.models.callbacks import CustomJS
 import os
 path = os.path.dirname(__file__)
 relative_path = '/data/'
 path = os.path.dirname(__file__) #/var/www/html/etrak_site/pages
 path_parent = os.path.dirname(path)
 full_path = path_parent+relative_path
+
+lead_double = u"\u201c"
+follow_double = u"\u201d"
+lead_single = u"\u2018"
+follow_single = u"\u2019"
 
 
 import urllib 
@@ -73,8 +81,9 @@ wind_color = '#ff7f0e'
 exim = pd.read_csv(full_path+'exim_ytd.csv')
 exim = exim.set_index(pd.to_datetime(exim['datehour']))
 
-dfs = pd.read_csv(full_path+'ieso_genoutputcap_v6.csv')# note version!
-dfs = dfs.set_index(pd.to_datetime(dfs.iloc[:,0]))
+dfs = pd.read_json('http://canadianenergyissues.com/data/ieso_genoutputcap_v7.json')# note version!
+print(dfs.head())
+dfs = dfs.set_index(pd.to_datetime(dfs.datehour, unit='ms'))
 dfs.index.name = 'datehour'
 
 wind_solar_mask = ['wind', 'solar']
@@ -93,7 +102,7 @@ gd_en_dt = gd.index.get_level_values(0)[-1]
 exim = exim.drop_duplicates()
 en_dt = exim.tail(1).index.values[0]
 en_dt = pd.to_datetime(en_dt)
-exim_matched = exim.loc[gd_st_dt:gd_en_dt] #########
+#exim_matched = exim.loc[gd_st_dt:gd_en_dt] #########
 exim_matched = exim.iloc[:, :-3].multiply(1)# in on_net_dem_svd.py this is multiplied by -1
 del exim_matched['datehour']
 exim_with_total = exim_matched.copy()
@@ -101,8 +110,9 @@ exim_with_total['total'] = exim_with_total.sum(axis=1)
 gd = gd.join(exim_matched, how='inner')
 # --- END OF EXIM, GENOUTPUT DATA PREPROCESSING ----
 
-df = pd.read_csv(full_path+'exim_ytd.csv')
-df = df.set_index(pd.to_datetime(df['datehour']))
+df = pd.read_json('http://canadianenergyissues.com/data/exim_ytd.json')
+print('df: ', df.head())
+df = df.set_index(pd.to_datetime(df.index, unit='ms'))
 pq = df.columns.str.contains('PQ')
 pq_cols = df.loc[:,pq].columns[:-1]
 a = df.copy()[pq_cols]
@@ -133,8 +143,8 @@ With this in mind, the question becomes: for what purpose should these mostly pu
 
     ############# bokeh INTERTIE ANNUAL FLOW TOTALS ########################
     with col1:
-        df = pd.read_csv(full_path+'exim_ytd.csv')
-        df = df.set_index(pd.to_datetime(df['datehour']))
+        #df = pd.read_csv(full_path+'exim_ytd.csv')
+        #df = df.set_index(pd.to_datetime(df['datehour']))
         all_interties = ['datehour', 'MANITOBA', 'MANITOBA SK', 'MICHIGAN', 'MINNESOTA',
         'NEW-YORK', 'PQ.AT', 'PQ.B5D.B31L', 'PQ.D4Z', 'PQ.D5A', 'PQ.H4Z',
         'PQ.H9A', 'PQ.P33C', 'PQ.Q4C', 'PQ.X2Y', 'Quebec total', 'PQ.AT_pos?',
@@ -173,7 +183,7 @@ With this in mind, the question becomes: for what purpose should these mostly pu
         years = ['2018', '2019', '2020', '2021', '2022', '2023']
         yl = len(years)
         
-        p = figure(y_range=interties, x_range=(-9e13, 9e13), title="Ontario electricity exports (+) and imports ("+endash+"), Wh by year", tools=tools)
+        p = figure(y_range=interties, x_range=(-9e13, 9e13), title="Ontario electricity exports (+) and imports ("+endash+"), Wh by year", tools=tools+['hover'], tooltips='$name: @Intertie: (@$name{0.000a})')
         
         p.hbar_stack(years, y='Intertie', height=0.9, color=tableau_colors[0:yl], source=ColumnDataSource(exports), legend_label=["%s exports" % x for x in years])
         
@@ -217,9 +227,10 @@ with tab2:
     with col1:
         per = res[res_in_english.index(period_ny)]
         p1 = figure(title='New York '+year_ny+', '+res_in_english[res_in_english.index(period_ny)], tools=tools)
-        p1.xaxis[0].formatter = DatetimeTickFormatter(months=['%b %d %y'], days=['%a %b %d'], hours=['%a %b %d\n%I%p'])
+        p1.xaxis[0].formatter = DatetimeTickFormatter(months=['%b %d %y'], days=['%a %b %d'], hours=['%a %b %d %I%p'])
         p1.line(pd.to_datetime(df.loc[year_ny,'NEW-YORK'].resample(per).mean().index.values), df.loc[year_ny,'NEW-YORK'].resample(per).mean().values, line_color=tableau_colors[3])
         p1.circle(pd.to_datetime(df.loc[year_ny,'NEW-YORK'].resample(per).mean().index.values), df.loc[year_ny,'NEW-YORK'].resample(per).mean().values, fill_color=tableau_colors[3], line_color=tableau_colors[3])
+        p1.xaxis.major_label_orientation = 0.5
         hline = Span(location=0, dimension='width', line_color='black', line_width=3)
         p1.renderers.extend([hline])
         st.bokeh_chart(p1)
@@ -240,9 +251,10 @@ with tab3:
     with col1:
         per = res[res_in_english.index(period_mi)]
         p1 = figure(title='Michigan '+year_mi+', '+res_in_english[res_in_english.index(period_mi)], tools=tools)
-        p1.xaxis[0].formatter = DatetimeTickFormatter(months=['%b %d %y'], days=['%a %b %d'], hours=['%a %b %d\n%I%p'])
+        p1.xaxis[0].formatter = DatetimeTickFormatter(months=['%b %d %y'], days=['%a %b %d'], hours=['%a %b %d %I%p'])
         p1.line(pd.to_datetime(df.loc[year_mi,'MICHIGAN'].resample(per).mean().index.values), df.loc[year_mi,'MICHIGAN'].resample(per).mean().values, line_color=tableau_colors[3])
         p1.circle(pd.to_datetime(df.loc[year_mi,'MICHIGAN'].resample(per).mean().index.values), df.loc[year_mi,'MICHIGAN'].resample(per).mean().values, fill_color=tableau_colors[3], line_color=tableau_colors[3])
+        p1.xaxis.major_label_orientation = 0.5
         hline = Span(location=0, dimension='width', line_color='black', line_width=3)
         p1.renderers.extend([hline])
         st.bokeh_chart(p1)
@@ -305,80 +317,216 @@ with tab4:
     with col1:
             per = res[res_in_english.index(period)]
             p1 = figure(title=intertie+' '+year+', '+res_in_english[res_in_english.index(period)], tools=tools)
-            p1.xaxis[0].formatter = DatetimeTickFormatter(months=['%b %d %y'], days=['%a %b %d'], hours=['%a %m/%d\n%I%p'])
+            p1.xaxis[0].formatter = DatetimeTickFormatter(months=['%b %d %y'], days=['%a %b %d'], hours=['%a %m %d %I%p'])
             p1.line(pd.to_datetime(a.loc[year,intertie].resample(per).mean().index.values), a.loc[year,intertie].resample(per).mean().values, line_color=tableau_colors[3])
             p1.circle(pd.to_datetime(a.loc[year,intertie].resample(per).mean().index.values), a.loc[year,intertie].resample(per).mean().values, fill_color=tableau_colors[3], line_color=tableau_colors[3])
+            p1.xaxis.major_label_orientation = 0.5
             hline = Span(location=0, dimension='width', line_color='black', line_width=3)
             p1.renderers.extend([hline])
             st.bokeh_chart(p1)
 
 with tab5:
-    sourceType = st.radio('Choose source/sink type', [s.title() for s in ['nuclear', 'non-nuclear baseload', 'ramping', 'peaking', 'dancers']], index=4, horizontal=True)
-    unitTypes = open(full_path+'unit_classifications.json')
-    unitTypes = json.load(unitTypes)
-    unitType = unitTypes[sourceType.lower()]
-    options = st.multiselect(
-    'Choose your supply source(s)/sink(s)',
-    unitType,
-    unitType[0])
+    st.markdown('### Which sources/sinks contribute most to the shape of net demand?')
+    valuable_gen_blurb = '''
+    The plot below shows all 20+ megawatt individual sources and sinks of electrical power on the southern Ontario grid (all reporting entities east of the [IESO&#8217;s northwest zone](https://www.ieso.ca/localContent/zonal.map/index.html)). You can select any combination of individual sources/sinks in each category.
+    
+    The sources/sinks in the &ldquo;dancers &rdquo; category perform today what variable renewable energy (VRE) proponents claim that storage&mdash;by which they usually mean chemical batteries&mdash;will perform in an all-VRE grid. As you can see, the &ldquo;dancers &rdquo; comprise nearly 12,000 MW of &ldquo;capacity &rdquo;. Battery storage today costs upward of \$500 per kWh.
+    
+    For 12,000 MW of capacity to run for one hour would require at least \$6 billion worth of batteries, for 2 hours \$12 billion worth; and for 10 hours, \$60 billion. 
+
+    During winter, when Ontario needs the most energy, there are often wind lulls lasting many hours, sometimes days. Solar photovoltaic output is low, and on cloudy days minimal&mdash;and of course during nighttime it is always zero. Batteries would have to be sized so as to be capable of outputting many thousands of megawatts of power, for days on end. Battery storage costs would push into the hundreds of billions, even trillions, of dollars.
+
+    A grid dominated by VRE-plus-storage is simply not financially viable.
+    
+    '''
+    math_str = '''
+    $ x = {-b \pm \sqrt{b^2-4ac} \over 2a} $
+    '''
+    st.markdown(valuable_gen_blurb)
+
+#    sourceType = st.radio('Choose source/sink type', [s.title() for s in ['nuclear', 'non-nuclear baseload', 'ramping', 'peaking', 'dancers']], index=4, horizontal=True)
+#    unitTypes = open(full_path+'unit_classifications.json')
+#    unitTypes = json.load(unitTypes)
+#    unitType = unitTypes[sourceType.lower()]
+#    options = st.multiselect(
+#    'Choose your supply source(s)/sink(s)',
+#    unitType,
+#    unitType[0])
     
 
-    col1a, col2a, col3a = st.columns([3, .5, 2.5], gap='large')
 
-    with col1a:
-        gd = gd.loc[gd_st_dt:en_dt]
-        newdf = gd.copy()[options]
-        newdf['Total'] = newdf.sum(axis=1)
-        
-        tdf = pd.read_csv(full_path+'zonedem_since_2003.csv')
-        tdf = tdf.set_index(tdf.datehour)
-        tdf.index = pd.to_datetime(tdf.index)
-        del tdf['datehour']
-        
-        dems = tdf.loc[gd_st_dt:en_dt]
-        netdem = dems['Zone Total'].subtract(solar.output)
-        netdem = netdem.subtract(wind.output)
-        
-        x = netdem.index
-        
-        y = netdem.values
-        y2 = newdf.Total.values
-        
-        title = 'Ontario net demand and sum of selected '+sourceType.title()+' sources/sinks. MW'
-        pt = figure(title=title, x_range=(dems.index[0], dems.index[-1]), y_range=(0, dems['Ontario Demand'].max()), tools=tools)
-        
-        pt.line(x, y, color=tableau_colors[0], line_width=3)
-        pt.yaxis.axis_label = 'Net demand'
-        pt.yaxis.axis_label_text_color = tableau_colors[0]
-        pt.yaxis.axis_label_text_font_style = 'bold'
-        
-        pt.extra_y_ranges = {"Dancers": Range1d(start=0, end=newdf.Total.max())}
-        pt.line(x, y2, color=tableau_colors[1], y_range_name="Dancers", line_width=3)
-        pt.add_layout(LinearAxis(y_range_name="Dancers", axis_label='Sum of net supply sources/sinks',
-        axis_label_text_color=tableau_colors[1], axis_label_text_font_style='bold'), 'right')
-        
-        pt.xaxis[0].formatter = DatetimeTickFormatter(months=['%b %d %y'], days=['%a %b %d'], hours=['%a %m/%d\n%I%p'])
-        
-        hline = Span(location=0, dimension='width', line_color='black', line_width=3)
-        pt.yaxis.formatter=NumeralTickFormatter(format='0,0')
-        pt.yaxis[0].major_label_text_color = tableau_colors[0]
-        pt.yaxis[1].major_label_text_color = tableau_colors[1]
-        pt.yaxis[0].major_label_text_font_style = 'bold'
-        pt.yaxis[1].major_label_text_font_style = 'bold'
-        pt.renderers.extend([hline])
-        st.bokeh_chart(pt)
-    with col3a:
-        with st.expander('See the demand data for the chart'):
-            demand_data_blurb = '''
-**Source**: [Independent Electricity System Operator Zonal demand](http://reports.ieso.ca/public/DemandZonal/)
-            '''
-            demand_data_blurb = demand_data_blurb
-            st.markdown(demand_data_blurb)
-            st.dataframe(dems.sort_index(ascending=True).style.format("{:,.0f}"))
-        with st.expander('See the source/sink data for the chart'):
-            source_data_blurb = '''
-**Source**: [Independent Electricity System Operator GenoutputCapability](http://reports.ieso.ca/public/GenOutputCapability/)\n
-[IESO export/import data](http://reports.ieso.ca/public/IntertieScheduleFlowYear/)
-            '''
-            st.markdown(source_data_blurb)
-            st.dataframe(newdf.sort_index(ascending=True).style.format("{:,.0f}"))
+    exim = pd.read_json('http://canadianenergyissues.com/data/exim_ytd.json')
+    exim = exim.set_index(pd.to_datetime(exim.index, unit='ms'))
+    
+    dfs = dfs.copy()
+    dfs['datehour'] = pd.to_datetime(dfs.datehour, unit='ms')
+    dfs = dfs.set_index('datehour')
+    dfs['datehour'] = dfs.index
+    
+    wind_solar_mask = ['wind', 'solar']
+    wind_solar_mask = dfs.fuel.str.contains('|'.join(wind_solar_mask), case=False)
+    dfs_nws = dfs[~wind_solar_mask] # nws = no wind, no solar
+    gd = dfs_nws.groupby([dfs_nws.index, 'unit']).mean().output.unstack()
+    
+    solar = dfs[dfs['fuel']=='SOLAR']
+    wind = dfs[dfs['fuel']=='WIND']
+    g = lambda x: x.groupby(x.index).sum().output.to_frame()
+    wind = g(wind)
+    solar = g(solar)
+    gdws = dfs[wind_solar_mask].groupby([dfs[wind_solar_mask].index, 'unit']).mean().output.unstack() 
+    gd_st_dt = pd.to_datetime(gd.index.get_level_values(0)[0], unit='ms')
+    gd_en_dt = pd.to_datetime(gd.index.get_level_values(0)[-1], unit='ms')
+    exim = exim.drop_duplicates()
+    en_dt = exim.tail(1).index.values[0]
+    en_dt = pd.to_datetime(en_dt)
+    print(exim.tail())
+    print('matched datetimes: gd_en_dt TYPE is ', type(gd_en_dt), ', and exim TYPE is: ', type(exim.tail(1).index[0]))
+    #exim_matched = exim.loc[gd_st_dt:gd_en_dt] #########
+    exim_matched = exim.iloc[:, :-3].multiply(1)# in on_net_dem_svd.py this is multiplied by -1
+    print(exim_matched.tail())
+    #del exim_matched['datehour']
+    
+    exim_with_total = exim_matched.copy()
+    exim_with_total['total'] = exim_with_total.sum(axis=1)
+    gd = gd.join(exim_matched, how='inner')
+    print(gd.tail())
+    # --- END OF EXIM, GENOUTPUT DATA PREPROCESSING ----
+    
+    pq = exim.columns.str.contains('PQ')
+    pq_cols = exim.loc[:,pq].columns[:-1]
+    a = exim.copy()[pq_cols]
+    #df = df.copy().loc['January 1 2022':'december 31 2022', ['MICHIGAN', 'NEW-YORK', 'Quebec total']]
+    a_bokeh_cols = a.iloc[:, [0, 2, 3, 4, 5, 6]]
+    
+    unitTypes = open(path_parent+'/data/unit_classifications_final_southern.json')
+    unitTypes = json.load(unitTypes)
+    sourceType = ['nuclear', 'non-nuclear baseload', 'ramping', 'peaking', 'dancers']
+    
+    gd = gd.loc[gd_st_dt:en_dt]
+    newdf = gd.copy()
+    newdf['Total'] = newdf.sum(axis=1)
+    
+    tdf = pd.read_json('http://canadianenergyissues.com/data/zonedem_since_2003.json')
+    #tdf = tdf.set_index(tdf.datehour)
+    tdf.index = pd.to_datetime(tdf.index)
+    #del tdf['datehour']
+    
+    dems = tdf.loc[gd_st_dt:en_dt]
+    dems.loc[:, 'Zone_total_less_northwest'] = dems.loc[:, 'Zone Total'].subtract(dems.loc[:, 'Northwest'])
+    
+    netdem = dems['Zone_total_less_northwest'].subtract(solar.output)
+    netdem = netdem.subtract(wind.output).to_frame()
+    netdem['datehour'] = netdem.index
+    netdem.columns = ['demand', 'datehour']
+    netdem.index = np.arange(0, netdem.shape[0])
+    dem_source = ColumnDataSource(data=netdem)
+    new_newdf = newdf.copy()
+    new_newdf['datehour'] = new_newdf.index
+    new_newdf['total'] = new_newdf.Total.values
+    new_newdf.index = np.arange(0, new_newdf.shape[0])
+    
+    sourceSink_source = ColumnDataSource(data=new_newdf)
+    sourceSink_source2 = ColumnDataSource(data=new_newdf)
+    
+    x = netdem.index
+    
+    y = netdem.values
+    y2 = newdf.Total.values
+    
+    tools=["pan,wheel_zoom,reset,save,xbox_zoom, ybox_zoom"] # bokeh web tools
+    
+    tableau_colors = ["#4e79a7","#f28e2c","#e15759","#76b7b2","#59a14f","#edc949","#af7aa1","#ff9da7","#9c755f","#bab0ab", "red", "blue"]
+    
+    #title = 'Ontario net demand and sum of selected '+sourceType.title()+' sources/sinks. MW'
+    title = 'Ontario '+lead_double+'southern'+follow_double+' grid net demand and sum of selected sources/sinks, MW'
+    pt = figure(title=title, x_range=(dems.index[0], dems.index[-1]), y_range=(0, dems['Ontario Demand'].max()), min_border_left=-4, tools=tools)
+    
+    pt.line('datehour', 'demand', source=dem_source, color='black', line_width=3)
+    pt.yaxis.axis_label = 'Net demand'
+    pt.yaxis.axis_label_text_color = 'black'
+    pt.yaxis.axis_label_text_font_style = 'bold'
+    
+    r = Range1d(start=0, end=new_newdf.total.max())
+    pt.extra_y_ranges = {"Dancers": r}
+    pt.line('datehour', 'total', source=sourceSink_source, color='red', y_range_name="Dancers", line_width=3)
+    pt.add_layout(LinearAxis(y_range_name="Dancers", axis_label='Sum of net supply sources/sinks',
+    axis_label_text_color='red', axis_label_text_font_style='bold'), 'right')
+    
+    pt.xaxis[0].formatter = DatetimeTickFormatter(months=['%b %d %y'], days=['%a %b %d'], hours=['%a %m %d %I%p'])
+    
+    hline = Span(location=0, dimension='width', line_color='black', line_width=3)
+    pt.yaxis.formatter=NumeralTickFormatter(format='0,0')
+    pt.yaxis[0].major_label_text_color = 'black'
+    pt.yaxis[1].major_label_text_color = 'red'
+    pt.yaxis[0].major_label_text_font_style = 'bold'
+    pt.yaxis[1].major_label_text_font_style = 'bold'
+    pt.renderers.extend([hline])
+    
+    rbv = ''
+    options = unitTypes['dancers']
+    multiselect = MultiSelect(title = 'Choose one or more sources/sinks', value = [], options = options, sizing_mode='stretch_height', width_policy='min')
+    a = RadioButtonGroup(active=4, labels=sourceType, orientation='horizontal', aspect_ratio='auto', sizing_mode='stretch_height')
+    callback2 = CustomJS(args={'multiselect':multiselect,'unitTypes':unitTypes, 'a':a}, code="""
+    const val = a.active;
+    const lab = a.labels;
+    const sourceType = lab[val];
+    multiselect.options=unitTypes[sourceType];
+    console.log('wh-options: ', multiselect.options);
+    console.log(val, sourceType);
+    """)
+    
+    callback = CustomJS(args = {'sourceSink_source': sourceSink_source, 'sourceSink_source2': sourceSink_source2, 'r': r, 'unitTypes':unitTypes,'a':a, 'options':multiselect.options, 's':multiselect},
+    code = """
+    function sum(arrays) {
+    return arrays.reduce((acc, array) => acc.map((sum, i) => sum + array[i]), new Array(arrays[0].length).fill(0));
+    }
+    options.value = unitTypes[a.value];
+    console.log('options dude hey: ', options);
+    const are = r;
+    console.log('are: ', are);
+    var data = sourceSink_source.data;
+    var data2 =sourceSink_source2.data;
+    console.log(data['datehour']);
+    var select_sourcesSinks = cb_obj.value;
+    const arr = [];
+    select_sourcesSinks.forEach((key) => {
+    arr.push(data2[key]);
+    });
+    const newSource = {'datehour': data2['datehour']};
+    newSource['total'] = sum(arr);
+    const newMin = Math.min(...newSource['total']);
+    const newMax = Math.max(...newSource['total']);
+    are.start=newMin;
+    are.end=newMax;
+    sourceSink_source.data = newSource;
+    """)
+    
+    multiselect.js_on_change('value', callback)
+    a.js_on_click(callback2) 
+    pt.xaxis.major_label_orientation = 0.5
+    pt.sizing_mode='scale_height'
+    layout = Row(pt, multiselect)
+    layout2 = Column(a, layout)
+    st.bokeh_chart(layout2)
+    st.markdown('### What is gained by prioritizing VRE, when it requires fast-responding sources/sinks?')
+    vre_drawbacks = '''
+    The &#8220;dancers&#8221; category in the plot above includes interties, hydro plants, and gas plants. Unless the generators are all hydro (or some non-emitting dispatchable generation), then VRE ***requires*** fossil generation. 
+
+    And in cases where &#8220;dancers&#8221; are indeed all non-emitting, then what environmental benefit is gained with VRE? 
+    '''
+    st.markdown(vre_drawbacks)
+
+        #with st.expander('See the demand data for the chart'):
+            #demand_data_blurb = '''
+#**Source**: [Independent Electricity System Operator Zonal demand](http://reports.ieso.ca/public/DemandZonal/)
+            #'''
+            #demand_data_blurb = demand_data_blurb
+            #st.markdown(demand_data_blurb)
+            #st.dataframe(dems.sort_index(ascending=True).style.format("{:,.0f}"))
+        #with st.expander('See the source/sink data for the chart'):
+            #source_data_blurb = '''
+#**Source**: [Independent Electricity System Operator GenoutputCapability](http://reports.ieso.ca/public/GenOutputCapability/)\n
+#[IESO export/import data](http://reports.ieso.ca/public/IntertieScheduleFlowYear/)
+            #'''
+            #st.markdown(source_data_blurb)
+            #st.dataframe(newdf.sort_index(ascending=True).style.format("{:,.0f}"))

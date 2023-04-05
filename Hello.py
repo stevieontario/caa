@@ -112,7 +112,7 @@ Learn more about these areas of focus by exploring the topics in the sidebar.
     with right_column:
         st.header('Who we are')
         who_we_are = '''
-We are literally an alliance. We are a group of labour unions, led by the Canadian Nuclear Workers&#8217; Council, itself an umbrella organization representing labour unions across the nuclear sector.
+We are literally an alliance. We are a group of labour unions, led by the Canadian Nuclear Workers&#8217; Council, itself an umbrella organization representing labour unions across the Canadian nuclear sector.
         '''
         st.markdown(who_we_are)
         st.write('[Visit the CNWC&#8217;s website >](https://cnwc-cctn.ca/)')
@@ -125,11 +125,11 @@ Canadian households, businesses, and transport networks run on clean, quiet, aff
         clean_air_mission = '''
 To be the premier voice for clean air through clean energy in Canada, in urban and rural areas, in workplaces and recreational spaces.
 
-To put fact and data-driven cases to policymakers at Canadian municipal, provincial, and federal government levels, that advise on how to meet clean air and climate change targets in the most proven and economically viable ways.
+To put fact and data-driven cases to policymakers at Canadian municipal, provincial, and federal government levels, that provide guidance on how to meet clean air and climate change targets in the most proven and economically viable ways.
 
 To promote the health of Canadians and the Canadian environment through proven, cost effective energy solutions.
 
-To draw on our deep expertise and decades of direct experience in Canada's most vital energy markets to inform policymakers.
+To leverage our members&#8217; deep expertise, forged through decades of direct experience in Canada's most vital energy markets, to inform policymakers on viable ways to achieve environmental, economic, and societal goals.
         '''
         st.markdown(clean_air_mission)
 

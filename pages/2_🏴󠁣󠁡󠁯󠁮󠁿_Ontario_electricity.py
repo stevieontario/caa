@@ -515,6 +515,12 @@ with tab5:
     And in cases where &#8220;dancers&#8221; are indeed all non-emitting, then what environmental benefit is gained with VRE? 
     '''
     st.markdown(vre_drawbacks)
+    st.markdown('### The under-appreciated value of baseload supply')
+    baseload_advantages = '''
+    Peak demand conditions get most of the attention in discussions about grid planning. Often the value of baseload supply is lost in these discussions. But baseload is like air&mdash;we need it every second of every minute of every day, and if were not provided for one second, we would notice.
+
+    From the plot above, you can see that nuclear provides nearly all Ontario's baseload supply. Because nuclear generates power without emissions, we can think of it as a clean air air supply.
+    '''
 
         #with st.expander('See the demand data for the chart'):
             #demand_data_blurb = '''

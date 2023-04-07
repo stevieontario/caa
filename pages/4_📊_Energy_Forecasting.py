@@ -74,12 +74,13 @@ with st.container():
         st.markdown(forecasting_blurb)
         #import iqplot
         
-        tdf = pd.read_csv(full_path+'zonedem_since_2003.csv')
         weath = pd.read_csv(full_path+'weather_since_2003.csv')
-        tdf = tdf.set_index(tdf.datehour)
+        tdf = pd.read_json('http://canadianenergyissues.com/data/zonedem_since_2003.json')
+        #tdf = tdf.set_index(tdf.datehour)
         tdf.index = pd.to_datetime(tdf.index)
+        #del tdf['datehour']
+
         tdf = tdf.copy().loc['may 1 2003 1 a.m.':'september 30 2022']
-        del tdf['datehour']
         weath = weath.set_index(weath.datehour)
         del weath['datehour']
         weath.index = pd.to_datetime(weath.index)

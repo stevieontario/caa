@@ -109,7 +109,9 @@ The &#8220;low hanging fruit&#8221; of electrification is the projects we can do
         st.markdown(storage_options)
         #--- beginning of proper ontario heat map
 # --- ONTARIO "HEAT" MAP -- 
-        df = pd.read_csv(path_parent+'/data/on_weather_stationdata_noLDC.csv', header=0)
+        df = pd.read_json('http://canadianenergyissues.com/data/on_weather_stationdata_noLDC.json').set_index('community_name')
+        df['datehour_my'] = pd.to_datetime(df.datehour_my, unit='ms')
+        df['community_name'] = df.index
 
 
         df= df.astype({'bearing':float, 'dewpoint':float, 'pressure':float, 'humidity':float, 'windspeed':float, 'temp':float, 'visibility':float, 'windchill':float, 'gust':float, 'realTemp':float, 'temp_delta':float, 'dwellings':float, 'ceiling_w':float, 'window_w':float, 'noWindowWall_w':float, 'floor_w':float, 'total_w':float, 'total_w_per_dwelling':float })

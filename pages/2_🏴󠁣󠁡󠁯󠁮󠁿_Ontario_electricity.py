@@ -78,8 +78,9 @@ wind_color = '#ff7f0e'
 
 
 # --- EXIM AND GENOUTPUT DATA PREPROCESSING --
-exim = pd.read_csv(full_path+'exim_ytd.csv')
-exim = exim.set_index(pd.to_datetime(exim['datehour']))
+exim = pd.read_json('http://canadianenergyissues.com/data/exim_ytd.json')
+exim = exim.set_index(pd.to_datetime(exim.index, unit='ms'))
+
 
 dfs = pd.read_json('http://canadianenergyissues.com/data/ieso_genoutputcap_v7.json')# note version!
 print(dfs.head())
@@ -104,15 +105,13 @@ en_dt = exim.tail(1).index.values[0]
 en_dt = pd.to_datetime(en_dt)
 #exim_matched = exim.loc[gd_st_dt:gd_en_dt] #########
 exim_matched = exim.iloc[:, :-3].multiply(1)# in on_net_dem_svd.py this is multiplied by -1
-del exim_matched['datehour']
 exim_with_total = exim_matched.copy()
 exim_with_total['total'] = exim_with_total.sum(axis=1)
 gd = gd.join(exim_matched, how='inner')
 # --- END OF EXIM, GENOUTPUT DATA PREPROCESSING ----
 
-df = pd.read_json('http://canadianenergyissues.com/data/exim_ytd.json')
+df = exim.copy()
 print('df: ', df.head())
-df = df.set_index(pd.to_datetime(df.index, unit='ms'))
 pq = df.columns.str.contains('PQ')
 pq_cols = df.loc[:,pq].columns[:-1]
 a = df.copy()[pq_cols]
@@ -143,8 +142,6 @@ With this in mind, the question becomes: for what purpose should these mostly pu
 
     ############# bokeh INTERTIE ANNUAL FLOW TOTALS ########################
     with col1:
-        #df = pd.read_csv(full_path+'exim_ytd.csv')
-        #df = df.set_index(pd.to_datetime(df['datehour']))
         all_interties = ['datehour', 'MANITOBA', 'MANITOBA SK', 'MICHIGAN', 'MINNESOTA',
         'NEW-YORK', 'PQ.AT', 'PQ.B5D.B31L', 'PQ.D4Z', 'PQ.D5A', 'PQ.H4Z',
         'PQ.H9A', 'PQ.P33C', 'PQ.Q4C', 'PQ.X2Y', 'Quebec total', 'PQ.AT_pos?',
@@ -355,9 +352,6 @@ with tab5:
     
 
 
-    exim = pd.read_json('http://canadianenergyissues.com/data/exim_ytd.json')
-    exim = exim.set_index(pd.to_datetime(exim.index, unit='ms'))
-    
     dfs = dfs.copy()
     dfs['datehour'] = pd.to_datetime(dfs.datehour, unit='ms')
     dfs = dfs.set_index('datehour')
@@ -521,6 +515,7 @@ with tab5:
 
     From the plot above, you can see that nuclear provides nearly all Ontario's baseload supply. Because nuclear generates power without emissions, we can think of it as a clean air air supply.
     '''
+    st.markdown(baseload_advantages)
 
         #with st.expander('See the demand data for the chart'):
             #demand_data_blurb = '''

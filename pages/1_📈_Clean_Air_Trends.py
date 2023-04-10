@@ -101,13 +101,13 @@ test = (-9080854.065614054, 5518069.532328642)
 pb.scatter(x='x', y='y', source=station_source, color='blue', size=10)
 pb.add_tools(my_hover)
 #pb.circle('x', 'y',  source=station_source, color='red', size=20)
-
+pb.sizing_mode = 'scale_width'
+st.bokeh_chart(pb)
 
 # --- DIRTY AIR ---
 with st.container():
     col1, col2 = st.columns(2)
     with col1:
-        st.bokeh_chart(pb)
         st.markdown('## Cars, trucks, trains, stoves, furnaces: the sources of dirty air')
         cleanAirData_blurb = '''
         Motor vehicle road transportation and heating are Canada&#8217;s largest sources of greenhouse gases and air pollution, by far. And cities&mdash;especially urban canyons between large buildings&mdasn;are where dangerous pollutants are found in their highest concentrations. These include

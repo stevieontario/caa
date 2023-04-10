@@ -6,6 +6,18 @@ import pandas as pd
 from streamlit_lottie import st_lottie
 import pydeck as pdk
 from streamlit_extras.switch_page_button import switch_page
+from bokeh.models import ColumnDataSource
+from bokeh.plotting import figure, show
+from bokeh.transform import dodge, factor_cmap, factor_mark
+from bokeh.models.callbacks import CustomJS
+from bokeh.layouts import layout, column
+from bokeh.models import HoverTool, LinearInterpolator
+from bokeh.tile_providers import CARTODBPOSITRON, OSM, STAMEN_TONER, STAMEN_TERRAIN, get_provider
+from bokeh.models.widgets import DateSlider
+import math
+from pyproj import Proj, transform
+from pyproj import Transformer
+from bokeh.palettes import GnBu3, OrRd3, Plasma, Category20
 
 import os
 path = os.path.dirname(__file__)
@@ -187,26 +199,86 @@ The &#8220;low hanging fruit&#8221; of electrification is the projects we can do
         )
 
         st.pydeck_chart(r)
-        st.markdown('### Major areas of electrification opportunity')
-        st.markdown('''
-CNWC publishes a [series of policy position papers](https://cnwc-cctn.ca/category/policy-positions/) that identify major areas of activity and suggest ways to achieve electrification as expeditiously as possible.
+    st.markdown('### Squaring circles: Canada&#8217;s electrification challenge')
+    st.markdown('''
+    &#8220;Net Zero By 2050&#8221; requires generating most if not all electricity with non-emitting technologies. There are currently roughly 1,100 power generating facilities across Canada. Over 900 of them&mdash;80 percent&mdash;are non-emitting. 
 
-These areas are:
+    The map below shows most of Canada&#8217;s power plants. Circle shapes represent combustible-fueled (emitting) generation capacity, squares represent non-emitting. &#8220;Net Zero By 2050&#8221; means squaring most of those circles.
 
-1. Road and rail transport.
+    Most combustible-fueled generation is in Alberta, Saskatchewan, Ontario, New Brunswick, and Nova Scotia. The vast bulk of generation, and emissions, occur in Alberta, which has a combustible baseload supply of 7,000 to 9,000 MW depending on the season.
+
+    Decarbonizing the latter with non-emitting generation is possible only with nuclear. This would entail nuclearizing oilsands process heat, since most of Alberta's baseload supply comes from oilsands operations where electric power is &#8220;cogenerated&#8221; with process heat. Replacing the gas that currently provides process heat would free up natural gas for export into the new global LNG market. This could represent a major new market for the Alberta oil and gas sector.
+    
+
+    ''')
+#--begin canada map --
+    data = pd.read_csv(full_path+'can_usa_powerplants_lon_lat.csv')
+    canada_mask = data.country_long=='Canada'
+    data = data[canada_mask]
+    
+    color_map = {'Nuclear':'blue', 'Coal':'black', 'Gas':'purple', 'Wave and Tidal':'green', 'Oil':'gray', 'Other': 'lightgray', 'Biomass':'brown', 'Hydro':'skyblue', 'Wind':'yellow', 'Solar':'orange'}
+    other_types = ['Cogeneration' 'Storage' 'Geothermal' 'Petcoke']
+    cvn_map = {'Nuclear':'Non-combustible', 'Coal':'Combustible', 'Gas':'Combustible', 'Wave and Tidal':'Non-combustible', 'Oil':'Combustible', 'Other': 'Combustible', 'Biomass':'Combustible', 'Hydro':'Non-combustible', 'Wind':'Non-combustible', 'Solar':'Non-combustible', 'Waste': 'Combustible', 'Cogeneration':'Combustible', 'Storage':'Non-combustible', 'Geothermal':'Non-combustible', 'Petcoke':'Combustible'}
+    data['color'] = data.primary_fuel.map(color_map)
+    data['cvn'] = data.primary_fuel.map(cvn_map)
+    def getLineCoords(row, geom, coord_type):
+        """Returns a list of coordinates ('x' or 'y') of a LineString geometry"""
+        if coord_type == 'x':
+            return list( row[geom].coords.xy[0] )
+        elif coord_type == 'y':
+            return list( row[geom].coords.xy[1] )
+    
+    MARKERS = [ 'circle', 'square']
+    CVN = ['Combustible', 'Non-combustible']
+    tile_provider = get_provider(OSM)
+    figtitle = '''
+Canada installed power generation capacity:\nCombustible (square) and Non-combustible (circle)
+    '''
+    p_canadaMap = figure(title=figtitle, x_axis_type="mercator", y_axis_type="mercator")
+    
+    p_canadaMap.yaxis.axis_label = 'Latitude'
+    p_canadaMap.xaxis.axis_label = 'Longitude'
+    
+    data = data.drop('geometry', axis=1).copy()
+    dsource = ColumnDataSource(data)
+    nc_mask = data['cvn']=='Non-combustible'
+    c = data[~nc_mask]
+    c_mask = c['cvn']=='Combustible'
+    index_cmap = factor_cmap('primary_fuel', palette=Category20[15], factors=sorted(data.primary_fuel.unique()))
+    mw_mapper = LinearInterpolator(x=[data.capacity_mw.min(), data.capacity_mw.max()], y=[5,100])
+    p_canadaMap.scatter(x='x', y='y', source=dsource, line_color='black', color=index_cmap, size={'field':'capacity_mw', 'transform':mw_mapper}, marker=factor_mark('cvn', MARKERS, CVN), legend_field='primary_fuel')
+    
+    p_canadaMap.add_tile(tile_provider)
+    my_hover = HoverTool()
+    my_hover.tooltips = [('Name of plant', '@name'),('Province', '@name'),  ('Capacity MW', '@capacity_mw'), ('Fuel', '@primary_fuel')]
+    p_canadaMap.add_tools(my_hover)
+    p_canadaMap.sizing_mode='stretch_both'
+    p_canadaMap.legend.label_text_font_size='14pt'
+    p_canadaMap.legend.glyph_height=50
+    p_canadaMap.legend.glyph_width=50
+    st.bokeh_chart(p_canadaMap)
+
+    #-- end canada map --
+    st.markdown('### Major areas of electrification opportunity')
+    st.markdown('''
+    CNWC publishes a [series of policy position papers](https://cnwc-cctn.ca/category/policy-positions/) that identify major areas of activity and suggest ways to achieve electrification as expeditiously as possible.
+    
+    These areas are:
+    
+    1. Road and rail transport.
     * Direct from grid.
     * Battery-based.
-1. Industrial.
+    1. Industrial.
     * Data Centres.
     * Vertical farms.
     * Hot water.
     * Heat pumps.
-1. Urban on- and &#8220;off-grid&#8221; applications.
+    1. Urban on- and &#8220;off-grid&#8221; applications.
     * Construction site power.
     * Mobile non-EV batteries, e.g. film sets.
     * Recreational site power, e.g. public parks and recreation areas.
-        ''')
-        #--- end of proper ontario heat map
+    ''')
+    #--- end of proper ontario heat map
 
     with col2:
         st.markdown('### The role of rail in higher electricity availability standards')
